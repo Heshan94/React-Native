@@ -26,6 +26,8 @@ class App extends Component{
       result:""
     }
 
+    this.operationsArray=["Del","+","-","/","*","C"];
+
     this.handlePressed=this.handlePressed.bind(this);
     this.clearText=this.clearText.bind(this);
     
@@ -45,9 +47,24 @@ class App extends Component{
       return{
         expressionText:prev.expressionText+text
       }
-    })    
+    });
+    
+  }
 
-}
+  handleOperationPressed(text){
+    let temp=this.state.expressionText.split('').pop();
+    if(this.state.expressionText==="" || temp==="+"|| temp==="-"|| temp==="*"|| temp==="/"){
+      return;
+    }
+    else{
+      this.setState((prev)=>{
+        return{
+          expressionText:prev.expressionText+text
+        }
+      })
+    }
+  }
+
   clearText(){
     this.setState((prev)=>{
       return{
@@ -58,12 +75,19 @@ class App extends Component{
   }
 
   evaluateResult(){
+    let lastElement=this.state.expressionText.slice(-1);
+    let isValid=lastElement!=="+" && lastElement!=="-" && lastElement!=="*" && lastElement!=="/";
+    if(isValid){
     this.setState((prev)=>{
       const temp=eval(prev.expressionText);
       return{
         result:temp
       }
     })
+  }
+  else{
+    return;
+  }
   }
 
   render(){
@@ -73,28 +97,27 @@ class App extends Component{
       let col=[];
       for(let j=0;j<3;j++){
         if(numbersArray[i][j]!=="="){
-          col.push(<TouchableOpacity onPress={()=>this.handlePressed(numbersArray[i][j])} style={styles.btn}><Text style={styles.buttonText}>{numbersArray[i][j]}</Text></TouchableOpacity>)
+          col.push(<TouchableOpacity key={numbersArray[i][j]} onPress={()=>this.handlePressed(numbersArray[i][j])} style={styles.btn}><Text style={styles.buttonText}>{numbersArray[i][j]}</Text></TouchableOpacity>)
         } 
         else{
-          col.push(<TouchableOpacity onPress={()=>this.evaluateResult()} style={styles.btn}><Text style={styles.buttonText}>{numbersArray[i][j]}</Text></TouchableOpacity>)
+          col.push(<TouchableOpacity key={numbersArray[i][j]} onPress={()=>this.evaluateResult()} style={styles.btn}><Text style={styles.buttonText}>{numbersArray[i][j]}</Text></TouchableOpacity>)
         } 
       }
-        rows.push(<View style={styles.buttonRow}>{col}</View>);
+        rows.push(<View key={i} style={styles.buttonRow}>{col}</View>);
     }
 
-    let operationsArray=["Dl","+","-","/","*","C"];
     let operations=[]
-    for(let i=0;i<operationsArray.length;i++){
-      if(operationsArray[i]==="C"){
-        operations.push(<TouchableOpacity onPress={()=>{this.clearText()}} style={styles.btn}><Text style={styles.buttonText}>{operationsArray[i]}</Text></TouchableOpacity>)   
+    for(let i=0;i<this.operationsArray.length;i++){
+      if(this.operationsArray[i]==="C"){
+        operations.push(<TouchableOpacity key={this.operationsArray[i]} onPress={()=>{this.clearText()}} style={styles.btn}><Text style={styles.operationText}>{this.operationsArray[i]}</Text></TouchableOpacity>)   
       }
 
-      else if(operationsArray[i]==="Dl"){
-        operations.push(<TouchableOpacity onPress={()=>{this.deleteElement()}} style={styles.btn}><Text style={styles.buttonText}>{operationsArray[i]}</Text></TouchableOpacity>)
+      else if(this.operationsArray[i]==="Del"){
+        operations.push(<TouchableOpacity key={this.operationsArray[i]} onPress={()=>{this.deleteElement()}} style={styles.btn}><Text style={styles.operationText}>{this.operationsArray[i]}</Text></TouchableOpacity>)
       }
 
       else{
-        operations.push(<TouchableOpacity onPress={()=>{this.handlePressed(operationsArray[i])}} style={styles.btn}><Text style={styles.buttonText}>{operationsArray[i]}</Text></TouchableOpacity>)
+        operations.push(<TouchableOpacity key={this.operationsArray[i]} onPress={()=>{this.handleOperationPressed(this.operationsArray[i])}} style={styles.btn}><Text style={styles.operationText}>{this.operationsArray[i]}</Text></TouchableOpacity>)
       }  
     }
 
@@ -138,26 +161,26 @@ const styles = StyleSheet.create({
 
   result:{
     flex:2,
-    backgroundColor:'blue',
+    backgroundColor:'#ffffff',
     justifyContent:'flex-end',
     alignItems:'flex-end'
   },
 
   expression:{
     flex:1,
-    backgroundColor:'green',
+    backgroundColor:'#ffffff',
     justifyContent:'flex-end',
     alignItems:'flex-end'
   },
 
   resultText:{
     fontSize:50,
-    color:'white'
+    color:'black'
   },
 
   expressionText:{
     fontSize:25,
-    color:'white'
+    color:'black'
   },
 
   buttons:{
@@ -167,14 +190,16 @@ const styles = StyleSheet.create({
 
   numbers:{
     flex:4,
-    backgroundColor:"red"
+    backgroundColor:"#3a3e40",
+    
   },
 
   btn:{
     flex:1,
     alignItems:'center',
     alignSelf:'stretch',
-    justifyContent:'center'
+    justifyContent:'center',
+    fontSize:5
 
   },
 
@@ -186,12 +211,18 @@ const styles = StyleSheet.create({
   },
 
   buttonText:{
-    fontSize:60,
+    fontSize:50,
+    color:"white"
+  },
+
+  operationText:{
+    fontSize:30,
+    color:"white"
   },
 
   operations:{
     flex:1,
-    backgroundColor:"yellow",
+    backgroundColor:"#5f6267",
     justifyContent:'space-evenly',
     alignItems:'center'
   }
